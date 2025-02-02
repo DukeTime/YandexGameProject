@@ -2,6 +2,10 @@ import pygame
 import random
 import sqlite3
 
+import os
+import sys
+
+
 # Инициализация Pygame
 pygame.init()
 
@@ -17,6 +21,17 @@ WHITE = (255, 255, 255)
 
 # Загрузка звуков
 click_sound = pygame.mixer.Sound('click_sound.mp3')
+
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    return image
 
 # Шары
 class Ball:
@@ -225,7 +240,7 @@ def menu():
                 mouse_x, mouse_y = event.pos
 
                 # Нажатие на кнопку "Играть"
-                if WIDTH / 2 - 100 < mouse_x < WIDTH / 2 + 100 and HEIGHT / 2 - 50 < mouse_y < HEIGHT / 2:
+                if WIDTH / 2 - 100 < mouse_x < WIDTH / 2 + 100 and HEIGHT / 2 < mouse_y < HEIGHT / 2 + 75:
                     # main()
                     global lvl
                     lvl = menu_select_lvl()
@@ -233,26 +248,45 @@ def menu():
 
 
                 # Нажатие на кнопку "Таблица рекордов"
-                elif WIDTH / 2 - 100 < mouse_x < WIDTH / 2 + 100 and HEIGHT / 2 < mouse_y < HEIGHT / 2 + 50:
+                elif WIDTH / 2 - 100 < mouse_x < WIDTH / 2 + 100 and HEIGHT / 2 + 50 < mouse_y < HEIGHT / 2 + 125:
                     show_scores()
 
         screen.fill(WHITE)
         font = pygame.font.Font(None, 36)
 
+        # создадим группу, содержащую все спрайты
+        all_sprites = pygame.sprite.Group()
+
+        # создадим спрайт
+        sprite = pygame.sprite.Sprite()
+        # определим его вид
+        sprite.image = load_image("aim.png")
+        # и размеры
+        sprite.rect = sprite.image.get_rect()
+
+        all_sprites.add(sprite)
+
+        sprite.rect.x = 400 - 112
+        sprite.rect.y = 20
+
+        # в главном игровом цикле
+        all_sprites.draw(screen)
+
+
         # Заголовок игры
         title_text = font.render("Цветные шары", True, (0, 0, 0))
-        title_rect = title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 100))
+        title_rect = title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         screen.blit(title_text, title_rect)
 
         # Кнопка "Играть"
         play_button_text = font.render("Играть", True, (0, 0, 0))
-        play_button_rect = play_button_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 25))
+        play_button_rect = play_button_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
         pygame.draw.rect(screen, (200, 200, 200), play_button_rect.inflate(20, 20))  # Кнопка
         screen.blit(play_button_text, play_button_rect)
 
         # Кнопка "Таблица рекордов"
         scores_button_text = font.render("Таблица рекордов", True, (0, 0, 0))
-        scores_button_rect = scores_button_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 25))
+        scores_button_rect = scores_button_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 100))
         pygame.draw.rect(screen, (200, 200, 200), scores_button_rect.inflate(20, 20))  # Кнопка
         screen.blit(scores_button_text, scores_button_rect)
 
